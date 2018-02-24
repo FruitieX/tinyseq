@@ -1,12 +1,12 @@
 {
   "name": "tinyseq",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A tiny Web Audio API OscillatorNode -based music sequencer",
   "main": "index.js",
   "repository": "https://github.com/FruitieX/tinyseq",
   "author": "FruitieX",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "stringify-object": "^3.2.2",
     "unzip": "^0.1.11",
     "xml2js": "^0.4.19"
