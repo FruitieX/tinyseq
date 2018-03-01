@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RenoiseScriptingTool doc_version="0">
+  <Name>tinyseq</Name>
+  <Id>org.fruitiex.tinyseq</Id>
+  <Version>1.2</Version>
+  <ApiVersion>5</ApiVersion>
+  <Author>FruitieX | fruitiex@gmail.com</Author>
+  <AutoUpgraded>false</AutoUpgraded>
+  <Category>IFFT Sample Generator</Category>
+  <Description>IFFT Sample generator</Description>
+  <Homepage>http://www.renoise.com/tools/tinyseq</Homepage>
+</RenoiseScriptingTool>
