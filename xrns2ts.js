@@ -124,7 +124,7 @@ const JsonToTinyseq = json => {
       };
       let instrumentId = 0;
 
-      instrument.N = 45; // TODO
+      instrument.N = 81; // TODO
 
       const sequencerTrack = song.Tracks.SequencerTrack[trackIndex];
 
@@ -176,7 +176,7 @@ const JsonToTinyseq = json => {
 
         const DelayDevice = sequencerTrack.FilterDevices.Devices.DelayDevice;
 
-        if (DelayDevice) {
+        if (DelayDevice && DelayDevice.IsActive.Value === '1.0') {
           instrument.e = Number(DelayDevice.LDelay.Value) / 1000;
           instrument.E = Number(DelayDevice.LFeedback.Value);
         }
@@ -195,6 +195,31 @@ const JsonToTinyseq = json => {
         if (loopSize) {
           instrument[patternIndex] = instrument[patternIndex].slice(0, loopSize);
         }
+
+        const samples = renoiseInstrument.SampleGenerator.Samples.Sample;
+        forEachMaybeArray(samples, (sample) => {
+          const name = sample.Name;
+          if (name.slice(0, 18) === 'tinyseq Parameters') {
+            const firstClosingIndex = name.indexOf('}');
+            const lastOpeningIndex = name.lastIndexOf('{');
+
+            const params = name.slice(lastOpeningIndex + 1, firstClosingIndex - 2);
+            let arr = JSON.parse(`[${params}]`);
+
+            arr = arr.map(e => Math.round(e * 10) / 10);
+            console.log(arr);
+
+            let lastNonZero = 0;
+            arr.forEach((e, i) => {
+              if (e) {
+                lastNonZero = i;
+              }
+            });
+            arr = arr.slice(0, lastNonZero + 1);
+
+            instrument.w = arr;
+          }
+        });
       }
 
       if (!instrument[patternIndex].length) {
