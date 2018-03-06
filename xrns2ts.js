@@ -207,7 +207,6 @@ const JsonToTinyseq = json => {
             let arr = JSON.parse(`[${params}]`);
 
             arr = arr.map(e => Math.round(e * 10) / 10);
-            console.log(arr);
 
             let lastNonZero = 0;
             arr.forEach((e, i) => {
