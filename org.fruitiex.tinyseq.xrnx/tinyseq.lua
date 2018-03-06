@@ -150,6 +150,7 @@ function tinyseq:create_sample (wavetable, note, range)
     if not success then return end
 
     sample.loop_mode = renoise.Sample.LOOP_MODE_FORWARD
+    sample.new_note_action = renoise.Sample.NEW_NOTE_ACTION_NOTE_CUT
 
     local sample_buffer = sample.sample_buffer
     sample_buffer:prepare_sample_data_changes ()
