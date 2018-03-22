@@ -9,6 +9,7 @@
   "dependencies": {
     "stringify-object": "^3.2.2",
     "unzip": "^0.1.11",
+    "waveheader": "^0.0.2",
     "xml2js": "^0.4.19"
   }
 }
