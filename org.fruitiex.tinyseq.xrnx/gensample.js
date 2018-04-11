@@ -1,17 +1,20 @@
 header = require('waveheader');
 fs = require('fs');
+path = require('path');
 
-z = `[1,.64,.59,.15,.08].reduce((s,k,i)=>k*Math.sin(i*2*Math.PI*f*t)+s)`;
+//z = `[1,.64,.59,.15,.08].reduce((s,k,i)=>k*Math.sin(i*2*Math.PI*f*t)+s)`;
+//filename = 'output.wav';
 
-generateWav = z => {
-  file = fs.createWriteStream('output.wav');
+generateWav = (filename, z) => {
+  file = fs.createWriteStream(filename);
 
   sampleRate = 44100;
   duration = 10;
 
   samples = [];
 
-  max = 0;
+  max = -32767;
+  min = 32767;
   for (i = 0; i < sampleRate * duration; i++) {
     f = 440;
     t = i / sampleRate;
@@ -19,13 +22,14 @@ generateWav = z => {
     sample = eval(z);
     samples.push(sample);
 
-    max = Math.max(max, Math.abs(sample));
+    max = Math.max(max, sample);
+    min = Math.min(min, sample);
   }
 
-  // normalize
-  samples = samples.map(s => s / max);
+  // maximize volume
+  samples = samples.map(s => (32767 - -32768) * (s - min) / (max - min) + -32768);
   // 16 bit
-  samples = samples.map(s => Math.round(s * 32767));
+  samples = samples.map(s => Math.floor(s));
   data = Int16Array.from(samples);
 
   file.write(header(samples.length * 2, {
@@ -40,6 +44,7 @@ generateWav = z => {
 
   file.write(buffer);
   file.end();
+  console.log("Done.");
 }
 
-generateWav(z);
+generateWav(process.argv[2], process.argv.splice(3).join(' '));

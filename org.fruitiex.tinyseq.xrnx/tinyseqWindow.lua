@@ -10,20 +10,13 @@ function tinyseqWindow:__init (pad_synth)
     self.vb = renoise.ViewBuilder ()
 
     self.pad_synth = pad_synth
-
-    self.harmonics = {}
-    for i = 1, 64 do self.harmonics[i] = 0 end
-    for i, v in ipairs (pad_synth.harmonics) do
-        self.harmonics[i] = v
-    end
-
 end
 
 
 ----------------------------------------------------------------------------------------------------
 
 
-function tinyseqWindow:show_dialog ()
+function tinyseqWindow:show_dialog (func)
 
     self.modulation_sets = {}
     self.modulation_sets[1] = "None"
@@ -43,6 +36,13 @@ function tinyseqWindow:show_dialog ()
 
     if not self.dialog_content then
         self.dialog_content = self:gui ()
+    end
+
+    local views = self.vb.views
+    if func then
+      views.func.value = func
+    else
+      views.func.value = "Math.sin(2 * Math.PI * f * t)"
     end
 
     local kh = function (d, k) return self:key_handler (d, k) end
@@ -94,15 +94,13 @@ function tinyseqWindow:generate_samples ()
 
     local views = self.vb.views
 
-    views.status.text = "Generating samples..."
     views.do_generate:remove_released_notifier (self, tinyseqWindow.generate_samples)
     views.do_generate:add_released_notifier (self, tinyseqWindow.cancel_generation)
     views.do_generate.text = "Cancel"
     in_progress_start (function ()
-        self.pad_synth:generate_samples ()
+        self.pad_synth:generate_samples (views.func.value)
     end,
     function ()
-        views.status.text = "Samples generated."
         views.do_generate.text = "Generate All Samples"
         views.do_generate:remove_released_notifier (self, tinyseqWindow.cancel_generation)
         views.do_generate:add_released_notifier (self, tinyseqWindow.generate_samples)
@@ -117,11 +115,6 @@ end
 function tinyseqWindow:update_parameters ()
 
     local views = self.vb.views
-
-    self.pad_synth.harmonics = { }
-    for i = 1, 64 do
-        self.pad_synth.harmonics[i] = self.harmonics[i] -- lin_to_ln (views["H" .. i].value)
-    end
 
 end
 
@@ -213,23 +206,6 @@ function tinyseqWindow:gui ()
         spacing = dialog_spacing,
         uniform = true,
 
-        -- Harmonics ---------------------------------------------------------------------------------------------------------------------------------
-
-        vb:column
-        {
-            style = "group",
-            margin = control_margin,
-            spacing = control_spacing,
-
-
-            vb:horizontal_aligner
-            {
-                id = "harmonics_group",
-                mode = "distribute",
-            },
-        },
-
-
         vb:horizontal_aligner
         {
             mode = "justify",
@@ -246,7 +222,7 @@ function tinyseqWindow:gui ()
                 {
                     style = "plain",
                     width = "100%",
-                    vb:text { id = "status", text = "tinyseq Opened", height = 24, },
+                    vb:textfield { id = "func", height = 24, width = "100%" },
                 },
             },
 
@@ -262,35 +238,6 @@ function tinyseqWindow:gui ()
 
     }
 
-    for i = 1, 64 do
-      vb.views.harmonics_group:add_child (vb:column
-      {
-        uniform = true,
-        width = 12,
-        spacing = 0,
-        vb:text { id = "harmonic_label_top_" .. i, text = tostring(i), width = 16, align = "center" },
-        vb:horizontal_aligner
-        {
-          mode = "center",
-          margin = 0,
-          spacing = 0,
-          vb:minislider
-          {
-            id = "H" .. i,
-            width = 16, height = 300,
-            min = 0, max = 1, value = 0,
-            notifier = function ()
-              local v = lin_to_ln (vb.views["H" .. i].value)
-              self.harmonics[i] = v
-              vb.views.status.text = "Harmonic " .. i .. " set to " .. string.format ("%.1f %%", 100 * v)
-              --self:generate_samples()
-            end
-          },
-        },
-        vb:text { id = "harmonic_label_bottom_" .. i, text = tostring(i), width = 16, align = "center" },
-      })
-    end
-    self:update_harmonics_sliders ()
 
     vb.views.do_generate:add_released_notifier (self, tinyseqWindow.generate_samples)
 
@@ -302,17 +249,6 @@ end
 
 
 ----------------------------------------------------------------------------------------------------
-
-
-function tinyseqWindow:update_harmonics_sliders ()
-
-    for i = 1, 64 do
-        self.vb.views["H" .. i].value = ln_to_lin (self.harmonics[i])
-        self.vb.views["harmonic_label_top_" .. i].text = string.format ("%d", i)
-        self.vb.views["harmonic_label_bottom_" .. i].text = string.format ("%d", i)
-    end
-
-end
 
 
 ----------------------------------------------------------------------------------------------------
