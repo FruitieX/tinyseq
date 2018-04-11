@@ -199,24 +199,8 @@ const JsonToTinyseq = json => {
         const samples = renoiseInstrument.SampleGenerator.Samples.Sample;
         forEachMaybeArray(samples, (sample) => {
           const name = sample.Name;
-          if (name.slice(0, 18) === 'tinyseq Parameters') {
-            const firstClosingIndex = name.indexOf('}');
-            const lastOpeningIndex = name.lastIndexOf('{');
-
-            const params = name.slice(lastOpeningIndex + 1, firstClosingIndex - 2);
-            let arr = JSON.parse(`[${params}]`);
-
-            arr = arr.map(e => Math.round(e * 10) / 10);
-
-            let lastNonZero = 0;
-            arr.forEach((e, i) => {
-              if (e) {
-                lastNonZero = i;
-              }
-            });
-            arr = arr.slice(0, lastNonZero + 1);
-
-            instrument.w = arr;
+          if (name.slice(0, 12) === 'tinyseq func') {
+            instrument.w = name.slice(13);
           }
         });
       }
