@@ -58,11 +58,10 @@ function tinyseq:generate_samples (func)
 
     handle:close()
 
-    --local asd = renoise.app().prompt_for_filename_to_read({"wav"}, "asd")
-
-    --print(asd)
+    print(renoise.song().selected_sample)
     -- TODO why doesn't this work :|
-    renoise.app():load_instrument_sample("output.wav")
+    local success = renoise.app():load_instrument_sample("output.wav")
+    print(success)
 
     -- Generate the samples
 
@@ -111,9 +110,9 @@ function tinyseq:save_func (func)
 
     self.instrument.samples[index].name = name
 
-    self.instrument.samples[index].volume = 0.0
-    self.instrument.samples[index].sample_mapping.note_range = {0, 0}
-    self.instrument.samples[index].sample_mapping.velocity_range = {0, 0}
+    --self.instrument.samples[index].volume = 0.0
+    self.instrument.samples[index].sample_mapping.note_range = {0, 119}
+    --self.instrument.samples[index].sample_mapping.velocity_range = {0, 0}
 
 end
 
