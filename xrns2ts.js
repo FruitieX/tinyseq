@@ -86,7 +86,7 @@ const SongXmlToJson = (xml, callback) => {
   });
 };
 
-const JsonToTinyseq = json => {
+const JsonToTinyseq = (json, instruments) => {
   const song = json.RenoiseSong;
 
   const songData = song.GlobalSongData;
@@ -196,6 +196,8 @@ const JsonToTinyseq = json => {
           instrument[patternIndex] = instrument[patternIndex].slice(0, loopSize);
         }
 
+        instrument.w = instruments[renoiseInstrument.Name];
+        /*
         const samples = renoiseInstrument.SampleGenerator.Samples.Sample;
         forEachMaybeArray(samples, (sample) => {
           const name = sample.Name;
@@ -203,6 +205,7 @@ const JsonToTinyseq = json => {
             instrument.w = name.slice(13);
           }
         });
+        */
       }
 
       if (!instrument[patternIndex].length) {
@@ -230,7 +233,7 @@ const JsonToTinyseq = json => {
 };
 
 // Unzip given xrns file (file contents as string), callback with tinyseq song.
-module.exports = (xrns, callback) => {
+module.exports = (xrns, instruments, callback) => {
   var Readable = require('stream').Readable;
   const stream = new Readable();
   //s._read = function noop() {};
@@ -248,7 +251,7 @@ module.exports = (xrns, callback) => {
         });
         entry.on('end', () => {
           SongXmlToJson(file, json => {
-            const tinySeqSong = JsonToTinyseq(json);
+            const tinySeqSong = JsonToTinyseq(json, instruments);
             callback(tinySeqSong);
           });
         });
