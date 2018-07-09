@@ -124,8 +124,6 @@ const JsonToTinyseq = (json, instruments) => {
       };
       let instrumentId = 0;
 
-      instrument.N = 81; // TODO
-
       const sequencerTrack = song.Tracks.SequencerTrack[trackIndex];
 
       // Ignore empty tracks
@@ -143,6 +141,9 @@ const JsonToTinyseq = (json, instruments) => {
         });
 
         const renoiseInstrument = song.Instruments.Instrument[instrumentId];
+
+        // Transpose
+        instrument.N = 48 - Number(renoiseInstrument.SampleGenerator.Samples.Sample.Transpose);
 
         // Try finding AHDSR modulator
         const modulationDevices = renoiseInstrument.SampleGenerator.ModulationSets.ModulationSet.Devices;
