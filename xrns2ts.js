@@ -242,7 +242,6 @@ const JsonToTinyseq = (json, instruments) => {
 
     // And add to instrument transpose to correct for this
     instrument.N -= lowestNote - 1;
-    console.log(lowestNote);
 
     return instrument;
   });
