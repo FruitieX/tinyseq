@@ -219,6 +219,34 @@ const JsonToTinyseq = (json, instruments) => {
     });
   });
 
+  // Do some optimisations
+  s.i = s.i.map(instrument => {
+    let lowestNote = 999;
+
+    Object.values(instrument).filter(Array.isArray).forEach(pattern => {
+      pattern.forEach(note => {
+        if (note > 0 && note < lowestNote) {
+          lowestNote = note;
+        }
+      });
+    });
+
+    // Now that we know the lowestNote, subtract all other notes (> 0) by lowestNote - 1
+    Object.entries(instrument).filter(([key, value]) => Array.isArray(value)).forEach(([index, pattern]) => {
+      pattern.forEach((note, index) => {
+        if (note > 0) {
+          pattern[index] -= lowestNote - 1;
+        }
+      });
+    })
+
+    // And add to instrument transpose to correct for this
+    instrument.N -= lowestNote - 1;
+    console.log(lowestNote);
+
+    return instrument;
+  });
+
   let stringified = stringifyObject(s, { indent: '  ' });
 
   // get rid of undefineds in the note arrays
