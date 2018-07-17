@@ -243,6 +243,46 @@ const JsonToTinyseq = (json, instruments) => {
     // And add to instrument transpose to correct for this
     instrument.N -= lowestNote - 1;
 
+    // Returns true if patterns are equal
+    const comparePatterns = (a, b) => {
+      if (a.length !== b.length) return false;
+
+      for (i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+      }
+
+      // Otherwise patterns are equal
+      return true;
+    };
+
+    // Find index of first identical pattern that is below this one
+    const findMatchingPattern = (instrument, pattern, index) => {
+      let foundIndex = -1;
+
+      Object.entries(instrument)
+        .filter(([testIndex, value]) => Array.isArray(value))
+        .filter(([testIndex, value]) => Number(testIndex) < Number(index))
+        .forEach(([testIndex, testPattern]) => {
+          // Only test if we didn't already find a match
+          if (foundIndex === -1) {
+            if (comparePatterns(pattern, testPattern)) {
+              foundIndex = testIndex;
+            }
+          }
+        });
+
+      return foundIndex;
+    };
+
+    // Try finding patterns that repeat and replace those with an index reference
+    Object.entries(instrument).filter(([key, value]) => Array.isArray(value)).forEach(([index, pattern]) => {
+      const foundIndex = findMatchingPattern(instrument, pattern, index);
+
+      if (foundIndex !== -1) {
+        instrument[index] = foundIndex;
+      }
+    })
+
     return instrument;
   });
 
